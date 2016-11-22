@@ -21,16 +21,18 @@
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/register_password"
         android:textAlignment="center"
+        android:hint="Enter a password"
+        android:inputType="textPassword"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter a password"/>
+        android:layout_height="wrap_content"/>
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/register_confirm_password"
         android:textAlignment="center"
+        android:inputType="textPassword"
+        android:hint="Confirm password"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Confirm password"/>
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/register_submit_button"

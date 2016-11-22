@@ -1,6 +1,8 @@
 package lighterletter.com.movement;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,8 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,24 +44,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        String currentUser = SaveSharedPreference.getUserName(getApplicationContext());
+        String currentUserEmail = SaveSharedPreference.getUserName(getApplicationContext());
+        realm = Realm.getDefaultInstance();
 
-        try {
-            realm = Realm.getDefaultInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if(currentUser.length() == 0) {
+        Log.d("saveduser", currentUserEmail);
+        if (currentUserEmail.isEmpty()) {
             // if no user is logged in go to login screen
-            Log.d(TAG, "starting login activity userNameVal is: " +  currentUser);
+            Log.d(TAG, "starting login activity userNameVal is: " + currentUserEmail);
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        }
-        else {
+        } else {
 
-            title.setText("Welcome " + currentUser);
-            //Query database for user stats.
-            // Stay at the current activity.
+            RealmQuery<User> query = realm.where(User.class);
+            query.equalTo("email", currentUserEmail);
+            RealmResults<User> result = query.findAll();
+            User currentUser = result.get(0);
+            Log.d("databse", result.toString());
+            title.setText("Welcome " + currentUser.getUserName());
         }
 
         Button shareBtn = (Button) findViewById(R.id.test_share);
@@ -72,18 +74,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button logOut = (Button) findViewById(R.id.logout_button);
-        logOut.setOnClickListener(new View.OnClickListener() {
+        final Button logOutBtn = (Button) findViewById(R.id.logout_button);
+        logOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveSharedPreference.clearUserName(getApplicationContext());
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                logOut();
             }
         });
     }
 
-    private void initViews(){
+    private void initViews() {
         title = (TextView) findViewById(R.id.title);
+    }
+
+    @Override
+    public void onBackPressed() {
+        buildLogOutDialog();
+    }
+
+    private void logOut(){
+        SaveSharedPreference.clearUserName(getApplicationContext());
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    }
+
+    private void buildLogOutDialog(){
+        new AlertDialog.Builder(this)
+                .setTitle("Log Out")
+                .setMessage("Are you sure you want to log out of this account?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        logOut();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 }

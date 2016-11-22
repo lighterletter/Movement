@@ -34,8 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private Button registerButton;
     private Realm realm;
-    private User myRealmObject;
-
 
     private TwitterLoginButton twitterLoginButton;
 
@@ -67,32 +65,43 @@ public class LoginActivity extends AppCompatActivity {
                 String email = String.valueOf(loginEmail.getText());
                 String password = String.valueOf(mEditTextPassword.getText());
 
-                if ((email.length() == 0) || (email.indexOf(0) != '@') ^ (!email.substring(email.length()-3,email.length()).equals(".com"))) {
+                if ((email.isEmpty())) {
                     showToast("Enter a valid e-mail address");
                     loginEmail.requestFocus();
-                } else if (password.length() == 0) {
+                } else if (password.isEmpty()) {
                     showToast("Enter password");
                     mEditTextPassword.requestFocus();
                 } else {
-
                     if (checkUser(email, password)) {
                         SaveSharedPreference.setUserName(getApplicationContext(),email);
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    } else {
-                        showToast("One of the values you entered is invalid");
                     }
                 }
             }
 
             private boolean checkUser(String email, String password) {
-                RealmResults<User> realmObjects = realm.where(User.class).findAll();
-                for (User myRealmObject : realmObjects) {
-                    if (email.equals(myRealmObject.getEmail()) && password.equals(myRealmObject.getPassword())) {
-                        Log.e(TAG, myRealmObject.getEmail());
-                        return true;
+                RealmResults<User> users = realm.where(User.class).findAll();
+                String userFound = "";
+
+                for (User user : users) { //iterate through database
+
+                    if (email.equals(user.getEmail())) {//if user is found
+
+                        userFound = user.getEmail(); // set field for toast
+
+                        if (email.equals(user.getEmail()) && password.equals(user.getPassword())) {
+
+                            Log.e(TAG, user.getEmail());
+                            return true;
+                        }
                     }
                 }
-                Log.e(TAG, String.valueOf(realm.where(User.class).contains("email", email)));
+
+                if ( ! userFound.isEmpty() ) {
+                    showToast("Password for " + userFound + " incorrect");
+                } else {
+                    showToast("User not found");
+                }
                 return false;
             }
 
@@ -120,9 +129,14 @@ public class LoginActivity extends AppCompatActivity {
             public void success(Result<TwitterSession> result) {
                 // The TwitterSession is also available through:
                 // Twitter.getInstance().core.getSessionManager().getActiveSession()
+
                 TwitterSession session = result.data;
                 // TODO: Remove toast and use the TwitterSession's userID
-                // with your app's user model
+
+                //use id as shared prefs name and e-mail field.
+                //save username as name
+
+
                 String msg = "@" + session.getUserName() + " logged in! (#" + session.getUserId() + ")";
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
             }
@@ -142,4 +156,7 @@ public class LoginActivity extends AppCompatActivity {
         twitterLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onBackPressed() {
+    }
 }

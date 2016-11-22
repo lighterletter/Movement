@@ -9,7 +9,7 @@ import android.preference.PreferenceManager;
  */
 
 public class SaveSharedPreference {
-    static final String PREF_USER_NAME= "username";
+    private static final String PREF_USER_NAME= "username";
 
     public static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -32,6 +32,6 @@ public class SaveSharedPreference {
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
         editor.clear(); //clear all stored data
-        editor.commit();
+        editor.apply();
     }
 }

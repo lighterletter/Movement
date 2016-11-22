@@ -61,6 +61,8 @@ public class RegisterActivity extends AppCompatActivity {
                 } else {
 
                     if(password.equals(confirmPassword)){
+                        //Todo: check database to see if user is already in
+
                         try {
                             realm.beginTransaction();
                             user = realm.createObject(User.class);
@@ -68,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                             user.setEmail(email);
                             user.setPassword(password);
 
-                            if (userPwET.getText().toString().equals(userConfirmPwET.getText().toString())) {
+                            if (password.equals(confirmPassword)) {
                                 realm.commitTransaction();
                                 showSnackBar("Save Success");
                                 SaveSharedPreference.setUserName(getApplicationContext(),userName);
