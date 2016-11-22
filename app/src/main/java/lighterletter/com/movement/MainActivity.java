@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     public void setUpTwitterogIn(){
         loginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
         loginButton.setCallback(new Callback<TwitterSession>() {
