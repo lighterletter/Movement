@@ -3,14 +3,17 @@ package lighterletter.com.movement.Model;
 import android.support.annotation.Nullable;
 
 import java.util.List;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
 /**
  * Created by john on 11/22/16.
  */
 
-public class User extends RealmObject{
+public class User extends RealmObject {
 
     @Required
     private String userId;
@@ -24,8 +27,7 @@ public class User extends RealmObject{
     @Required
     private String password;
 
-    @Required
-    private List<DateData> data;
+    private RealmList<DateData> data;
 
     public String getUserId() {
         return userId;
@@ -63,7 +65,7 @@ public class User extends RealmObject{
         return data;
     }
 
-    public void setData(List<DateData> data) {
+    public void setData(RealmList<DateData> data) {
         this.data = data;
     }
 }

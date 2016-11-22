@@ -12,7 +12,6 @@ public class DateData extends RealmObject{
     @Required
     private String date;
 
-    @Required
     private int steps;
 
     public String getDate() {

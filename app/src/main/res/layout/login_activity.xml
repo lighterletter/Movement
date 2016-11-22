@@ -3,4 +3,43 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/login_email_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="200dp"
+        android:textColorHint="@color/colorPrimary"
+        android:hint="E-mail"/>
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/login_password_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColorHint="@color/colorPrimary"
+        android:hint="Password"/>
+
+    <Button
+        android:id="@+id/login_button"
+        android:layout_marginTop="25dp"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Log In"/>
+
+    <Button
+        android:id="@+id/login_register_button"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="sign up"/>
+
+    <com.twitter.sdk.android.core.identity.TwitterLoginButton
+        android:id="@+id/twitter_login_button"
+        android:layout_gravity="center"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>
