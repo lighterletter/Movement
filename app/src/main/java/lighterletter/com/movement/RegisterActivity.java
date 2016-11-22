@@ -63,34 +63,44 @@ public class RegisterActivity extends AppCompatActivity {
                     if(password.equals(confirmPassword)){
                         //Todo: check database to see if user is already in
 
-                        try {
-                            realm.beginTransaction();
-                            user = realm.createObject(User.class);
-                            user.setUserName(userName);
-                            user.setEmail(email);
-                            user.setPassword(password);
 
-                            if (password.equals(confirmPassword)) {
-                                realm.commitTransaction();
-                                showSnackBar("Save Success");
-                                SaveSharedPreference.setUserName(getApplicationContext(),userName);
-                                startActivity(new Intent(RegisterActivity.this , MainActivity.class));
-                            } else {
-                                showSnackBar("save failed, make sure passwords match");
-                                realm.cancelTransaction();
-                                onClick(v);
+                        if ( ! RealmUtil.getInstance().checkUserCreds(email,password,realm)) {
+
+                            try {
+                                realm.beginTransaction();
+                                user = realm.createObject(User.class);
+                                user.setUserName(userName);
+                                user.setEmail(email);
+                                user.setPassword(password);
+
+                                if (password.equals(confirmPassword)) {
+                                    realm.commitTransaction();
+                                    realm.close();
+                                    showSnackBar("Save Success");
+                                    SaveSharedPreference.setUserName(getApplicationContext(), userName);
+                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                } else {
+                                    showSnackBar("save failed, make sure passwords match");
+                                    realm.cancelTransaction();
+                                    realm.close();
+                                    onClick(v);
+                                }
+
+                            } catch (RealmPrimaryKeyConstraintException e) {
+                                e.printStackTrace();
+                                showSnackBar("User found on db.");
                             }
-
-                        } catch (RealmPrimaryKeyConstraintException e) {
-                            e.printStackTrace();
-                            showSnackBar("User found on db.");
+                        } else {
+                            showSnackBar("User already exists");
                         }
+
                     }
                 }
             }
         });
 
     }
+
 
     private void initViews(){
         userNameET = (EditText) findViewById(R.id.register_name);

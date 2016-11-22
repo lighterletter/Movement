@@ -7,21 +7,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
-import io.realm.RealmResults;
-import lighterletter.com.movement.Model.User;
 
 /**
  * Created by john on 11/22/16.
@@ -47,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         initLogIn();
         initSignUp();
-        setUpTwitterogIn();
+        setUpTwitterLogin();
     }
 
     private void initViews() {
@@ -65,44 +59,34 @@ public class LoginActivity extends AppCompatActivity {
                 String email = String.valueOf(loginEmail.getText());
                 String password = String.valueOf(mEditTextPassword.getText());
 
-                if ((email.isEmpty())) {
+                if (email.isEmpty()) {
+
                     showToast("Enter a valid e-mail address");
                     loginEmail.requestFocus();
-                } else if (password.isEmpty()) {
-                    showToast("Enter password");
+
+                } else if (password.isEmpty() || password.length() < 4) {
+
+                    showToast("Enter valid password (4 or more characters)");
                     mEditTextPassword.requestFocus();
+
                 } else {
-                    if (checkUser(email, password)) {
-                        SaveSharedPreference.setUserName(getApplicationContext(),email);
+                    RealmUtil util = RealmUtil.getInstance();
+
+                    if (util.checkUserCreds(email, password, realm)) {
+
+                        SaveSharedPreference.setUserName(getApplicationContext(),util.getUser(email,realm).getUserName());
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
+
+                    } else if ( ! RealmUtil.getInstance().foundUserEmail(email, realm).isEmpty() ) {
+
+                        showToast("Password for " + email + " incorrect");
+
+                    } else  {
+
+                        showToast("User not found");
+
                     }
                 }
-            }
-
-            private boolean checkUser(String email, String password) {
-                RealmResults<User> users = realm.where(User.class).findAll();
-                String userFound = "";
-
-                for (User user : users) { //iterate through database
-
-                    if (email.equals(user.getEmail())) {//if user is found
-
-                        userFound = user.getEmail(); // set field for toast
-
-                        if (email.equals(user.getEmail()) && password.equals(user.getPassword())) {
-
-                            Log.e(TAG, user.getEmail());
-                            return true;
-                        }
-                    }
-                }
-
-                if ( ! userFound.isEmpty() ) {
-                    showToast("Password for " + userFound + " incorrect");
-                } else {
-                    showToast("User not found");
-                }
-                return false;
             }
 
             private void showToast(String msg) {
@@ -122,20 +106,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void setUpTwitterogIn() {
+    public void setUpTwitterLogin() {
         twitterLoginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-                // The TwitterSession is also available through:
-                // Twitter.getInstance().core.getSessionManager().getActiveSession()
-
                 TwitterSession session = result.data;
+                // The TwitterSession is also available through: Twitter.getInstance().core.getSessionManager().getActiveSession()
                 // TODO: Remove toast and use the TwitterSession's userID
 
                 //use id as shared prefs name and e-mail field.
                 //save username as name
-
 
                 String msg = "@" + session.getUserName() + " logged in! (#" + session.getUserId() + ")";
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
@@ -158,5 +139,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        //Empty to prevent backStack navigation
     }
 }

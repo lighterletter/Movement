@@ -18,7 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColorHint="@color/colorPrimary"
-        android:hint="Password"/>
+        android:hint="Password"
+        android:inputType="textPassword"
+        />
 
     <Button
         android:id="@+id/login_button"

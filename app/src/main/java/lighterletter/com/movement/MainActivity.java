@@ -44,18 +44,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        String currentUserEmail = SaveSharedPreference.getUserName(getApplicationContext());
+        String currentUserName = SaveSharedPreference.getUserName(getApplicationContext());
         realm = Realm.getDefaultInstance();
 
-        Log.d("saveduser", currentUserEmail);
-        if (currentUserEmail.isEmpty()) {
+        Log.d("saveduser", currentUserName);
+        if (currentUserName.isEmpty()) {
             // if no user is logged in go to login screen
-            Log.d(TAG, "starting login activity userNameVal is: " + currentUserEmail);
+            Log.d(TAG, "starting login activity userNameVal is: " + currentUserName);
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         } else {
 
             RealmQuery<User> query = realm.where(User.class);
-            query.equalTo("email", currentUserEmail);
+            query.equalTo("userName", currentUserName);
             RealmResults<User> result = query.findAll();
             User currentUser = result.get(0);
             Log.d("databse", result.toString());
