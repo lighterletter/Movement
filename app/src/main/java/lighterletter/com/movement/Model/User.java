@@ -1,7 +1,9 @@
 package lighterletter.com.movement.Model;
 
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.realm.RealmList;

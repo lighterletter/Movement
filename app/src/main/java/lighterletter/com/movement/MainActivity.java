@@ -42,22 +42,23 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         String currentUserKey = SaveSharedPreference.getUserKey(getApplicationContext());
-
         Log.d("saveduser", currentUserKey);
         if (currentUserKey.isEmpty()) {
             // if no user is logged in go to login screen
             Log.d(TAG, "starting login activity userNameVal is: " + currentUserKey);
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+            //else make sure that the user saved exists in database
         } else if(RealmUtil.getInstance().getUser(currentUserKey,realm) != null) {
 
             RealmQuery<User> query = realm.where(User.class);
             query.equalTo("email", currentUserKey);
             RealmResults<User> result = query.findAll();
             User currentUser = result.get(0);
-            Log.d("databse", result.toString());
-            String welcomeMessage = "Welcome " + currentUser.getUserName();
+            String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
-            realm.close();
+
+            //Todo: step counter and update.
         }
 
         Button shareBtn = (Button) findViewById(R.id.test_share);
@@ -75,22 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 buildLogOutDialog();
             }
         });
-    }
-
-    public Realm realmMigration(){
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
-        try {
-            return Realm.getInstance(realmConfiguration);
-        } catch (RealmMigrationNeededException e){
-            try {
-                Realm.deleteRealm(realmConfiguration);
-                //Realm file has been deleted.
-                return Realm.getInstance(realmConfiguration);
-            } catch (Exception ex){
-                throw ex;
-                //No Realm file to remove.
-            }
-        }
     }
 
 
@@ -132,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
     private void logOut(){
         Twitter.logOut();
         SaveSharedPreference.clearUserKey(getApplicationContext());
+        realm.close();
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 

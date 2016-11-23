@@ -47,7 +47,7 @@ public class RealmUtil {
                 return user;
             }
         }
-        return new User();
+        return null;
     }
 
     public boolean isUser(String email, Realm database) {
