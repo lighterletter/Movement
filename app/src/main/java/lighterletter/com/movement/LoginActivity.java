@@ -27,10 +27,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginEmail, mEditTextPassword;
     private Button loginButton;
     private Button registerButton;
-    private Realm realm;
 
     private TwitterLoginButton twitterLoginButton;
 
+    private Realm realm;
     private String email;
     private String password;
 
@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         initLogIn();
         initSignUp();
         setUpTwitterLogin();
+
     }
 
     private void initViews() {
@@ -73,22 +74,22 @@ public class LoginActivity extends AppCompatActivity {
 
                 } else {
 
-                    RealmUtil util = RealmUtil.getInstance();
-
-                    if (util.checkUserCreds(email, password, realm)) {
+                    if (RealmUtil.getInstance().checkUserCreds(email, password,realm)) {
 
                         //save user login
-                        SaveSharedPreference.setUserName(getApplicationContext(),util.getUser(email,realm).getUserName());
+                        SaveSharedPreference.setUserKey(getApplicationContext(), email);
+                        showToast("User: " + RealmUtil.getInstance().getUser(email,realm).getEmail() + " logged in!");
                         realm.close();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        goToMainActivity();
 
-                    } else if ( ! RealmUtil.getInstance().foundUserEmail(email, realm).isEmpty() ) {
+                    } else if (! RealmUtil.getInstance().isUser(email,realm)) {
+
                         //user found but password is not a match
                         showToast("Password for " + email + " incorrect");
                         realm.close();
-                    } else  {
+                        mEditTextPassword.requestFocus();
+                    } else {
                         showToast("User not found");
-                        realm.close();
                     }
                 }
             }
@@ -101,11 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (realm != null && ! realm.isClosed()){
-                    realm.close();
-                }
-                Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(i);
+                goToRegisterActivity();
             }
         });
     }
@@ -116,21 +113,33 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void success(Result<TwitterSession> result) {
                 TwitterSession session = result.data;
-                // The TwitterSession is also available through: Twitter.getInstance().core.getSessionManager().getActiveSession()
-                // TODO: Remove toast and use the TwitterSession's userID
 
-                //use id as shared prefs name and e-mail field.
-                //save username as name
+                String userKey = String.valueOf(session.getUserId());
+                String userName = session.getUserName();
 
-                String msg = "@" + session.getUserName() + " logged in! (#" + session.getUserId() + ")";
+                RealmUtil.getInstance().storeUser(userName, userKey, userKey, userKey);
+                SaveSharedPreference.setUserKey(getApplicationContext(), userKey);
+                String msg = "@" + session.getUserName() + " logged in!";
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                showToast(msg);
+                goToMainActivity();
             }
 
             @Override
             public void failure(TwitterException exception) {
                 Log.d("TwitterKit", "Login with Twitter failure", exception);
+                showToast("log in failed, check network or sign up locally");
+                goToRegisterActivity();
             }
         });
+    }
+
+    private void goToMainActivity(){
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+    }
+
+    private void goToRegisterActivity(){
+        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
     private void showToast(String msg) {

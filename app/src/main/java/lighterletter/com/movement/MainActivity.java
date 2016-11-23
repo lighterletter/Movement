@@ -10,11 +10,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterApiClient;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.exceptions.RealmMigrationNeededException;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,21 +41,22 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
 
-        String currentUserName = SaveSharedPreference.getUserName(getApplicationContext());
+        String currentUserKey = SaveSharedPreference.getUserKey(getApplicationContext());
 
-        Log.d("saveduser", currentUserName);
-        if (currentUserName.isEmpty()) {
+        Log.d("saveduser", currentUserKey);
+        if (currentUserKey.isEmpty()) {
             // if no user is logged in go to login screen
-            Log.d(TAG, "starting login activity userNameVal is: " + currentUserName);
+            Log.d(TAG, "starting login activity userNameVal is: " + currentUserKey);
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        } else {
+        } else if(RealmUtil.getInstance().getUser(currentUserKey,realm) != null) {
 
             RealmQuery<User> query = realm.where(User.class);
-            query.equalTo("userName", currentUserName);
+            query.equalTo("email", currentUserKey);
             RealmResults<User> result = query.findAll();
             User currentUser = result.get(0);
             Log.d("databse", result.toString());
-            title.setText("Welcome " + currentUser.getUserName());
+            String welcomeMessage = "Welcome " + currentUser.getUserName();
+            title.setText(welcomeMessage);
             realm.close();
         }
 
@@ -71,6 +75,22 @@ public class MainActivity extends AppCompatActivity {
                 buildLogOutDialog();
             }
         });
+    }
+
+    public Realm realmMigration(){
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
+        try {
+            return Realm.getInstance(realmConfiguration);
+        } catch (RealmMigrationNeededException e){
+            try {
+                Realm.deleteRealm(realmConfiguration);
+                //Realm file has been deleted.
+                return Realm.getInstance(realmConfiguration);
+            } catch (Exception ex){
+                throw ex;
+                //No Realm file to remove.
+            }
+        }
     }
 
 
@@ -110,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logOut(){
-        SaveSharedPreference.clearUserName(getApplicationContext());
+        Twitter.logOut();
+        SaveSharedPreference.clearUserKey(getApplicationContext());
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 

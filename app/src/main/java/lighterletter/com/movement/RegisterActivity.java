@@ -9,7 +9,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import io.realm.Realm;
-import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 import lighterletter.com.movement.Model.User;
 
 /**
@@ -50,12 +49,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void registerNewUser() {
         registerButton.setOnClickListener(new View.OnClickListener() {
-            View view = null;
 
             @Override
             public void onClick(View v) {
-
-                this.view = v;
 
                 String userName = String.valueOf(userNameET.getText());
                 String email = String.valueOf(userEmailET.getText()).toLowerCase();
@@ -76,55 +72,28 @@ public class RegisterActivity extends AppCompatActivity {
                     userPwET.requestFocus();
                 } else {
 
-                    if (password.equals(confirmPassword)) {
+                    //check database to see if there is already a user with that e-mail address
+                    if (realm.where(User.class).equalTo("email", email).count() == 0) {
 
-                        //check database to see if there is already a user with that e-mail address
-                        if (realm.where(User.class).equalTo("email", email).count() == 0) {
+                        if (password.equals(confirmPassword)) {
 
-                            storeUser(userName, email, password, confirmPassword);
+                            realm.close();
+                            RealmUtil.getInstance().storeUser(userName, email, password, confirmPassword);
+                            showToast("Save Success");
+                            SaveSharedPreference.setUserKey(getApplicationContext(), email);
+                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
 
                         } else {
-                            showToast("E-mail already in use");
+                            showToast("Registration failed, make sure passwords match");
+                            realm.close();
+                            userPwET.requestFocus();
                         }
 
                     } else {
-                        showToast("Make sure passwords match");
-                    }
-                }
-            }
-
-            private void storeUser(String userName, String email, String password, String confirmPassword) {
-
-                try {
-                    if (password.equals(confirmPassword)) {
-
-                        realm.beginTransaction();
-                        user = new User();
-                        user.setUserName(userName);
-                        user.setEmail(email);
-                        user.setPassword(password);
-
-                        realm.copyToRealm(user);
-                        realm.commitTransaction();
-                        realm.close();
-
-                        showToast("Save Success");
-
-                        SaveSharedPreference.setUserName(getApplicationContext(), userName);
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-
-                    } else {
-                        showToast("Registration failed, make sure passwords match");
-                        realm.cancelTransaction();
-                        realm.close();
-                        userPwET.requestFocus();
+                        showToast("E-mail already in use");
                     }
 
-                } catch (RealmPrimaryKeyConstraintException e) {
-                    e.printStackTrace();
-                    showToast("User found on db.");
                 }
-
             }
 
         });
