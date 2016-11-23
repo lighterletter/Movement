@@ -19,8 +19,8 @@ public class RealmUtil {
 
     private static RealmUtil instance;
 
-    public static synchronized RealmUtil getInstance(){
-        if (instance == null){
+    public static synchronized RealmUtil getInstance() {
+        if (instance == null) {
             return new RealmUtil();
         }
         return instance;
@@ -28,21 +28,17 @@ public class RealmUtil {
 
     public boolean checkUserCreds(String email, String password, Realm database) {
         RealmResults<User> users = database.where(User.class).findAll();
-
         for (User user : users) { //iterate through database
-
-            if (email.equals(user.getEmail())) {//if user is found
-
-                if (email.equals(user.getEmail()) && password.equals(user.getPassword())) {
-
-                    Log.e(TAG, user.getEmail());
-                    return true;
-                }
+            if (email.equals(user.getEmail()) && password.equals(user.getPassword())) {
+                //returns true is user email/password match
+                return true;
             }
         }
+        //returns false otherwise
         return false;
     }
-    public User getUser(String email , Realm database){
+
+    public User getUser(String email, Realm database) {
         RealmResults<User> users = database.where(User.class).findAll();
         for (User user : users) { //iterate through database
             if (email.equals(user.getEmail())) {//if user is found
@@ -52,15 +48,16 @@ public class RealmUtil {
         return new User();
     }
 
-    public String foundUserEmail(String email, Realm database){
+    public String foundUserEmail(String email, Realm database) {
         RealmResults<User> users = database.where(User.class).findAll();
         for (User user : users) { //iterate through database
             if (email.equals(user.getEmail())) {//if user is found
-                    Log.e(TAG, user.getEmail());
-                    return user.getEmail();
+                Log.e(TAG, user.getEmail());
+                return user.getEmail();
             }
         }
         return "";
     }
+
 
 }

@@ -15,27 +15,17 @@ import io.realm.annotations.Required;
 
 public class User extends RealmObject {
 
-    @Required
-    private String userId;
 
     @Required
     private String userName;
 
-    @Required
+    @PrimaryKey
     private String email;
 
     @Required
     private String password;
 
     private RealmList<DateData> data;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getUserName() {
         return userName;

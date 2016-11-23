@@ -31,14 +31,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private TwitterLoginButton twitterLoginButton;
 
+    private String email;
+    private String password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-
-        realm = Realm.getDefaultInstance();
-
         initViews();
+
         initLogIn();
         initSignUp();
         setUpTwitterLogin();
@@ -56,8 +57,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String email = String.valueOf(loginEmail.getText());
-                String password = String.valueOf(mEditTextPassword.getText());
+                realm = Realm.getDefaultInstance();
+                email = String.valueOf(loginEmail.getText()).toLowerCase();
+                password = String.valueOf(mEditTextPassword.getText());
 
                 if (email.isEmpty()) {
 
@@ -70,36 +72,38 @@ public class LoginActivity extends AppCompatActivity {
                     mEditTextPassword.requestFocus();
 
                 } else {
+
                     RealmUtil util = RealmUtil.getInstance();
 
                     if (util.checkUserCreds(email, password, realm)) {
 
+                        //save user login
                         SaveSharedPreference.setUserName(getApplicationContext(),util.getUser(email,realm).getUserName());
+                        realm.close();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
 
                     } else if ( ! RealmUtil.getInstance().foundUserEmail(email, realm).isEmpty() ) {
-
+                        //user found but password is not a match
                         showToast("Password for " + email + " incorrect");
-
+                        realm.close();
                     } else  {
-
                         showToast("User not found");
-
+                        realm.close();
                     }
                 }
-            }
-
-            private void showToast(String msg) {
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
             }
 
         });
     }
 
+
     private void initSignUp() {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (realm != null && ! realm.isClosed()){
+                    realm.close();
+                }
                 Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(i);
             }
@@ -129,6 +133,10 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void showToast(String msg) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -141,4 +149,5 @@ public class LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         //Empty to prevent backStack navigation
     }
+
 }

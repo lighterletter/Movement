@@ -9,16 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.TwitterSession;
-import com.twitter.sdk.android.core.identity.TwitterLoginButton;
-
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -41,11 +33,12 @@ public class MainActivity extends AppCompatActivity {
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
         Realm.init(getApplicationContext());
+        realm = Realm.getDefaultInstance();
         setContentView(R.layout.activity_main);
 
         initViews();
+
         String currentUserName = SaveSharedPreference.getUserName(getApplicationContext());
-        realm = Realm.getDefaultInstance();
 
         Log.d("saveduser", currentUserName);
         if (currentUserName.isEmpty()) {
@@ -60,17 +53,14 @@ public class MainActivity extends AppCompatActivity {
             User currentUser = result.get(0);
             Log.d("databse", result.toString());
             title.setText("Welcome " + currentUser.getUserName());
+            realm.close();
         }
 
         Button shareBtn = (Button) findViewById(R.id.test_share);
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String message = "Today I've taken { val } steps towards awesomeness with Movement for Android";
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("text/plain");
-                share.putExtra(Intent.EXTRA_TEXT, message);
-                startActivity(Intent.createChooser(share, "Share your steps"));
+                createShareAction();
             }
         });
 
@@ -78,9 +68,18 @@ public class MainActivity extends AppCompatActivity {
         logOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                logOut();
+                buildLogOutDialog();
             }
         });
+    }
+
+
+    private void createShareAction(){
+        String message = "Today I've taken { val } steps towards awesomeness with Movement for Android";
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT, message);
+        startActivity(Intent.createChooser(share, "Share your steps"));
     }
 
     private void initViews() {
@@ -90,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         buildLogOutDialog();
-    }
-
-    private void logOut(){
-        SaveSharedPreference.clearUserName(getApplicationContext());
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 
     private void buildLogOutDialog(){
@@ -113,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void logOut(){
+        SaveSharedPreference.clearUserName(getApplicationContext());
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 
 }

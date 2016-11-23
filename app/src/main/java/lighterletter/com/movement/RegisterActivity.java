@@ -36,73 +36,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         initViews();
-
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String userName = String.valueOf(userNameET.getText());
-                String email = String.valueOf(userEmailET.getText());
-                String password = String.valueOf(userPwET.getText());
-                String confirmPassword = String.valueOf(userConfirmPwET.getText());
-
-                if (userName.length() == 0) {
-                    showSnackBar("Enter FirstName");
-                    userNameET.requestFocus();
-                } else if (email.length() == 0) {
-                    showSnackBar("Enter a valid email");
-                    userEmailET.requestFocus();
-                } else if (password.length() == 0) {
-                    showSnackBar("Enter a valid password");
-                    userPwET.requestFocus();
-                } else if (confirmPassword.length() == 0) {
-                    showSnackBar("Enter a valid Password");
-                    userPwET.requestFocus();
-                } else {
-
-                    if(password.equals(confirmPassword)){
-                        //Todo: check database to see if user is already in
-
-
-                        if ( ! RealmUtil.getInstance().checkUserCreds(email,password,realm)) {
-
-                            try {
-                                realm.beginTransaction();
-                                user = realm.createObject(User.class);
-                                user.setUserName(userName);
-                                user.setEmail(email);
-                                user.setPassword(password);
-
-                                if (password.equals(confirmPassword)) {
-                                    realm.commitTransaction();
-                                    realm.close();
-                                    showSnackBar("Save Success");
-                                    SaveSharedPreference.setUserName(getApplicationContext(), userName);
-                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                } else {
-                                    showSnackBar("save failed, make sure passwords match");
-                                    realm.cancelTransaction();
-                                    realm.close();
-                                    onClick(v);
-                                }
-
-                            } catch (RealmPrimaryKeyConstraintException e) {
-                                e.printStackTrace();
-                                showSnackBar("User found on db.");
-                            }
-                        } else {
-                            showSnackBar("User already exists");
-                        }
-
-                    }
-                }
-            }
-        });
-
+        registerNewUser();
     }
 
-
-    private void initViews(){
+    private void initViews() {
         userNameET = (EditText) findViewById(R.id.register_name);
         userEmailET = (EditText) findViewById(R.id.register_email);
         userPwET = (EditText) findViewById(R.id.register_password);
@@ -110,7 +47,90 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton = (Button) findViewById(R.id.register_submit_button);
     }
 
-    private void showSnackBar(String msg) {
+
+    private void registerNewUser() {
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            View view = null;
+
+            @Override
+            public void onClick(View v) {
+
+                this.view = v;
+
+                String userName = String.valueOf(userNameET.getText());
+                String email = String.valueOf(userEmailET.getText()).toLowerCase();
+                String password = String.valueOf(userPwET.getText());
+                String confirmPassword = String.valueOf(userConfirmPwET.getText());
+
+                if (userName.length() == 0) {
+                    showToast("Enter a userName");
+                    userNameET.requestFocus();
+                } else if (email.length() <= 6) {
+                    showToast("Enter a valid email");
+                    userEmailET.requestFocus();
+                } else if (password.length() == 0) {
+                    showToast("Enter a valid password");
+                    userPwET.requestFocus();
+                } else if (confirmPassword.length() == 0) {
+                    showToast("Enter a valid Password");
+                    userPwET.requestFocus();
+                } else {
+
+                    if (password.equals(confirmPassword)) {
+
+                        //check database to see if there is already a user with that e-mail address
+                        if (realm.where(User.class).equalTo("email", email).count() == 0) {
+
+                            storeUser(userName, email, password, confirmPassword);
+
+                        } else {
+                            showToast("E-mail already in use");
+                        }
+
+                    } else {
+                        showToast("Make sure passwords match");
+                    }
+                }
+            }
+
+            private void storeUser(String userName, String email, String password, String confirmPassword) {
+
+                try {
+                    if (password.equals(confirmPassword)) {
+
+                        realm.beginTransaction();
+                        user = new User();
+                        user.setUserName(userName);
+                        user.setEmail(email);
+                        user.setPassword(password);
+
+                        realm.copyToRealm(user);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        showToast("Save Success");
+
+                        SaveSharedPreference.setUserName(getApplicationContext(), userName);
+                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+
+                    } else {
+                        showToast("Registration failed, make sure passwords match");
+                        realm.cancelTransaction();
+                        realm.close();
+                        userPwET.requestFocus();
+                    }
+
+                } catch (RealmPrimaryKeyConstraintException e) {
+                    e.printStackTrace();
+                    showToast("User found on db.");
+                }
+
+            }
+
+        });
+    }
+
+    private void showToast(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
