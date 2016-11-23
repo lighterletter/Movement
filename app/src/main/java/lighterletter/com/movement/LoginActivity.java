@@ -120,7 +120,6 @@ public class LoginActivity extends AppCompatActivity {
                 RealmUtil.getInstance().storeUser(userName, userKey, userKey, userKey);
                 SaveSharedPreference.setUserKey(getApplicationContext(), userKey);
                 String msg = "@" + session.getUserName() + " logged in!";
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                 showToast(msg);
                 goToMainActivity();
             }
