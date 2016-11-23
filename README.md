@@ -15,3 +15,5 @@ Android application.
 
  Once you have the fabric plugin installed in android studio sign in with your credentials and update
  this will take care of creating a fabric.properties folder in your /app/ level and filling in the manifest.
+ I created a string.xml file where I could access the value for the field in the manifest,
+ If you're just running the application you can simply input the key directly.
