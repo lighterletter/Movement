@@ -15,8 +15,8 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
         android:text="Welcome to Movement"
+        android:textAlignment="center"
         android:textSize="35sp"
         android:textStyle="bold" />
 
@@ -29,21 +29,51 @@
         android:textSize="12sp"
         android:textStyle="bold" />
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="140dp"
+        android:layout_marginBottom="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/total_steps_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total steps since Sign up: "
+            android:textSize="20sp"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/this_week_steps_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total steps this week: "
+            android:textSize="20sp"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/today_steps_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total steps today: "
+            android:textSize="20sp"/>
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/test_share"
-        android:layout_centerInParent="true"
-        android:text="share"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="share" />
 
     <Button
         android:id="@+id/logout_button"
-        android:layout_centerInParent="true"
-        android:layout_alignParentBottom="true"
-        android:text="Log out"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="Log out" />
 
 
 </RelativeLayout>

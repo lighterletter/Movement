@@ -82,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                         realm.close();
                         goToMainActivity();
 
-                    } else if (! RealmUtil.getInstance().isUser(email,realm)) {
+                    } else if (RealmUtil.getInstance().isUser(email,realm)) {
 
                         //user found but password is not a match
                         showToast("Password for " + email + " incorrect");
@@ -156,6 +156,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //Empty to prevent backStack navigation
+        onPause();
     }
 
 }

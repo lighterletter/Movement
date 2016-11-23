@@ -78,4 +78,13 @@ public class RealmUtil {
         }
     }
 
+    public void addToOverallStepsForThisUser(){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        //... add or update objects here ...
+
+        realm.commitTransaction();
+    }
+
 }

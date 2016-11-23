@@ -2,6 +2,11 @@ package lighterletter.com.movement;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,15 +14,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
+import lighterletter.com.movement.Model.DateData;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = ".MainActivity";
 
     private TextView title;
+    private TextView totalStepsTV;
+    private TextView weeklyStepsTV;
+    private TextView dailyStepsTV;
+
     private Realm realm;
 
     @Override
@@ -37,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         Fabric.with(this, new Twitter(authConfig));
         Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
+
         setContentView(R.layout.activity_main);
 
         initViews();
@@ -49,16 +65,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
             //else make sure that the user saved exists in database
-        } else if(RealmUtil.getInstance().getUser(currentUserKey,realm) != null) {
+        } else if (RealmUtil.getInstance().getUser(currentUserKey, realm) != null) {
 
             RealmQuery<User> query = realm.where(User.class);
             query.equalTo("email", currentUserKey);
             RealmResults<User> result = query.findAll();
             User currentUser = result.get(0);
+
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
 
-            //Todo: step counter and update.
         }
 
         Button shareBtn = (Button) findViewById(R.id.test_share);
@@ -79,7 +95,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void createShareAction(){
+    private void initViews() {
+        title = (TextView) findViewById(R.id.title);
+        totalStepsTV = (TextView) findViewById(R.id.total_steps_text_view);
+        weeklyStepsTV = (TextView) findViewById(R.id.this_week_steps_text_view);
+        dailyStepsTV = (TextView) findViewById(R.id.today_steps_text_view);
+    }
+
+    private void createShareAction() {
         String message = "Today I've taken { val } steps towards awesomeness with Movement for Android";
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("text/plain");
@@ -87,16 +110,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(share, "Share your steps"));
     }
 
-    private void initViews() {
-        title = (TextView) findViewById(R.id.title);
-    }
-
     @Override
     public void onBackPressed() {
         buildLogOutDialog();
     }
 
-    private void buildLogOutDialog(){
+    private void buildLogOutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out of this account?")
@@ -114,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void logOut(){
+    private void logOut() {
         Twitter.logOut();
         SaveSharedPreference.clearUserKey(getApplicationContext());
         realm.close();
