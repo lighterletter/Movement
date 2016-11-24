@@ -15,6 +15,9 @@ public class DateData extends RealmObject {
     private String date;
     private int steps;
 
+    public DateData() {
+    }
+
     public DateData(String date, int steps) {
         this.date = date;
         this.steps = steps;
