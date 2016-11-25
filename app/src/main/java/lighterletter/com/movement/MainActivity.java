@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
             RealmQuery<User> query = realm.where(User.class);
             query.equalTo("email", currentUserKey);
             RealmResults<User> result = query.findAll();
-
             currentUser = result.get(0);
 
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
@@ -91,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void beginStepService(){
-
+        Intent service = new Intent(this, StepsService.class);
+        StepsService.getInstance().startService(service);
     }
 
 

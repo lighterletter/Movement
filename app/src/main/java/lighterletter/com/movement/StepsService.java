@@ -15,6 +15,8 @@ import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import lighterletter.com.movement.Model.DateData;
 import lighterletter.com.movement.Model.User;
 
@@ -53,7 +55,6 @@ public class StepsService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int
             startId) {
-        user = intent.getParcelableExtra("user");
         return Service.START_STICKY;
     }
 
@@ -74,8 +75,15 @@ public class StepsService extends Service implements SensorEventListener {
             @Override
             public void execute(Realm realm) {
 
-                String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());;
+                //Todo: might be better to save and get user from util rather than query using key stored in sharedpref.
 
+                String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+                String savedUserKey = SaveSharedPreference.currentUser;
+
+                RealmQuery<User> query = realm.where(User.class);
+                query.equalTo("email", savedUserKey);
+                RealmResults<User> result = query.findAll();
+                user = result.get(0);
 
                 if (user.getData() == null) {
 
