@@ -24,8 +24,6 @@ public class PedometerActivity  extends Activity implements SensorEventListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
         mStepsSinceReboot = (TextView) findViewById(R.id.total_steps_text_view);
 
         mSensorManager = (SensorManager)

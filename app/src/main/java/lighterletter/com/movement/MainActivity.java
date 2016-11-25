@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView dailyStepsTV;
 
     private Realm realm;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +61,16 @@ public class MainActivity extends AppCompatActivity {
             RealmQuery<User> query = realm.where(User.class);
             query.equalTo("email", currentUserKey);
             RealmResults<User> result = query.findAll();
-            User currentUser = result.get(0);
+
+            currentUser = result.get(0);
 
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
 
             closeRealm();
 
+            //Todo: working on this until it is finished.
+            //beginStepService();
         }
 
         Button shareBtn = (Button) findViewById(R.id.test_share);
@@ -84,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 buildLogOutDialog();
             }
         });
+    }
+
+    private void beginStepService(){
+        
     }
 
 

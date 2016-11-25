@@ -29,8 +29,14 @@ public class StepsService extends Service implements SensorEventListener {
     private Realm realm;
     private User user;
 
+    private static StepsService instance;
 
-    public StepsService() {
+    public static synchronized StepsService getInstance() {
+        if (instance == null){
+            instance = new StepsService();
+            return instance;
+        }
+        return instance;
     }
 
     @Override
@@ -40,8 +46,7 @@ public class StepsService extends Service implements SensorEventListener {
         sensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
             stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-            sensorManager.registerListener(this, stepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            realm = Realm.getDefaultInstance();
+            sensorManager.registerListener(this, stepDetectorSensor, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -60,6 +65,11 @@ public class StepsService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -76,17 +86,13 @@ public class StepsService extends Service implements SensorEventListener {
                     realm.copyToRealmOrUpdate(user);
 
                 } else {
-                     DateData dateData = realm.where(DateData.class)
+
+                    DateData dateData = realm.where(DateData.class)
                             .equalTo("data.date", date).findFirst();
                     dateData.setSteps(dateData.getSteps() +1);
 
                 }
             }
         });
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 }
