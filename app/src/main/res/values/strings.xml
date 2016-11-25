@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Movement</string>
+    <string name="sign_up">sign up</string>
+    <string name="log_in">Log In</string>
+    <string name="password">Password</string>
+    <string name="e_mail">E-mail</string>
+    <string name="submit">Submit</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="enter_a_password">Enter a password</string>
+    <string name="enter_a_valid_email_address">Enter a valid email address</string>
+    <string name="select_a_user_name">Select a user name</string>
+    <string name="log_out">Log out</string>
+    <string name="share">share</string>
+    <string name="welcome_tag">Walking a path to healthy living. \n One step at a time.</string>
+    <string name="title">Welcome to Movement</string>
 </resources>

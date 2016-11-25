@@ -2,11 +2,6 @@ package lighterletter.com.movement;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,19 +11,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.TwitterApiClient;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import io.realm.exceptions.RealmMigrationNeededException;
-import lighterletter.com.movement.Model.DateData;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
         Realm.init(getApplicationContext());
-        realm = Realm.getDefaultInstance();
+
+        restartRealm();
 
         setContentView(R.layout.activity_main);
 
@@ -61,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("saveduser", currentUserKey);
         if (currentUserKey.isEmpty()) {
             // if no user is logged in go to login screen
+            closeRealm();
             Log.d(TAG, "starting login activity userNameVal is: " + currentUserKey);
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
@@ -74,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
+
+            closeRealm();
 
         }
 
@@ -111,8 +103,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        restartRealm();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        restartRealm();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        closeRealm();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        closeRealm();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        closeRealm();
+    }
+
+    @Override
     public void onBackPressed() {
-        buildLogOutDialog();
+        moveTaskToBack(true);
     }
 
     private void buildLogOutDialog() {
@@ -136,8 +158,20 @@ public class MainActivity extends AppCompatActivity {
     private void logOut() {
         Twitter.logOut();
         SaveSharedPreference.clearUserKey(getApplicationContext());
-        realm.close();
+        closeRealm();
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    }
+
+    private void restartRealm() {
+        if (realm == null) {
+            realm = Realm.getDefaultInstance();
+        }
+    }
+
+    private void closeRealm() {
+        if (realm != null) {
+            realm.close();
+        }
     }
 
 }

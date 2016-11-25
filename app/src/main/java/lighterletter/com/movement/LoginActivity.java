@@ -126,9 +126,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void failure(TwitterException exception) {
-                Log.d("TwitterKit", "Login with Twitter failure", exception);
-                showToast("log in failed, check network or sign up locally");
-                goToRegisterActivity();
+                Log.d("TwitterKit", "Login with Twitter failed.", exception);
+                showToast("Twitter log in failed. \nCheck network connection or sign up locally.");
             }
         });
     }
@@ -142,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showToast(String msg) {
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -156,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //Empty to prevent backStack navigation
-        onPause();
+        moveTaskToBack(true);
     }
 
 }

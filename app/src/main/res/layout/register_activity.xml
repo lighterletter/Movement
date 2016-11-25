@@ -6,7 +6,7 @@
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/register_name"
         android:textAlignment="center"
-        android:hint="Select a user name"
+        android:hint="@string/select_a_user_name"
         android:paddingTop="150dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -14,14 +14,14 @@
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/register_email"
         android:textAlignment="center"
-        android:hint="Enter a valid email address"
+        android:hint="@string/enter_a_valid_email_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/register_password"
         android:textAlignment="center"
-        android:hint="Enter a password"
+        android:hint="@string/enter_a_password"
         android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -30,13 +30,13 @@
         android:id="@+id/register_confirm_password"
         android:textAlignment="center"
         android:inputType="textPassword"
-        android:hint="Confirm password"
+        android:hint="@string/confirm_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/register_submit_button"
-        android:text="Submit"
+        android:text="@string/submit"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

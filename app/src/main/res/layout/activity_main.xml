@@ -15,7 +15,7 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to Movement"
+        android:text="@string/title"
         android:textAlignment="center"
         android:textSize="35sp"
         android:textStyle="bold" />
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
         android:layout_centerInParent="true"
-        android:text="Walking a path to healthy living. \n            One step at a time."
+        android:text="@string/welcome_tag"
         android:textSize="12sp"
         android:textStyle="bold" />
 
@@ -65,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="share" />
+        android:text="@string/share" />
 
     <Button
         android:id="@+id/logout_button"
@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:text="Log out" />
+        android:text="@string/log_out" />
 
 
 </RelativeLayout>
