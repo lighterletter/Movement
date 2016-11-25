@@ -21,15 +21,18 @@ public class User extends RealmObject {
 
 
     @Required
-    private String userName;
+    String userName;
 
     @PrimaryKey
-    private String email;
+    String email;
 
     @Required
-    private String password;
+    String password;
 
-    private RealmList<DateData> data;
+    RealmList<DateData> data;
+
+    public User() {
+    }
 
     public String getUserName() {
         return userName;
