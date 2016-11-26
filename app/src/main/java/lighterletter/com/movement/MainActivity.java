@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
             //Welcome!
             setWelcomeMessage();
-
             closeRealm();
 
             //Todo: working on this until it is finished.
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
             //TODO;getValues from util
             //setViewsValues();
-            
+
             //setOfficeTimeListener();
 
         }
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
         } else {
-            title.setText("How did you get in here?");
+            title.setText(R.string.welcome);
         }
 
     }
@@ -116,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         Intent service = new Intent(this, StepsService.class);
         StepsService.getInstance().startService(service);
     }
-
 
     private void createShareAction() {
         String message = "Today I've taken { val } steps towards awesomeness with Movement for Android";

@@ -19,7 +19,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
 
 public class RealmUtil {
 
-    User user;
+    private User user;
 
     private static RealmUtil instance;
 
