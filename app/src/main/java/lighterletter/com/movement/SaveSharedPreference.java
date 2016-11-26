@@ -17,10 +17,6 @@ public class SaveSharedPreference {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }
 
-    public static String getCurrentUser(){
-        return currentUser;
-    }
-
     public static void setUserKey(Context ctx, String userKey)
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();

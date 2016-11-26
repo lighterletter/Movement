@@ -19,6 +19,8 @@ import static io.fabric.sdk.android.Fabric.TAG;
 
 public class RealmUtil {
 
+    User user;
+
     private static RealmUtil instance;
 
     public static synchronized RealmUtil getInstance() {
@@ -40,12 +42,22 @@ public class RealmUtil {
         return false;
     }
 
-    public User getUser(String email, Realm database) {
+    public User findUser(String email, Realm database) {
         RealmResults<User> users = database.where(User.class).findAll();
         for (User user : users) { //iterate through database
             if (email.equals(user.getEmail())) {//if user is found
                 return user;
             }
+        }
+        return null;
+    }
+    public void setUser(User currentUser) {
+        this.user = currentUser;
+    }
+
+    public User getSavedUser(){
+        if (user != null){
+            return user;
         }
         return null;
     }
@@ -86,5 +98,6 @@ public class RealmUtil {
 
         realm.commitTransaction();
     }
+
 
 }

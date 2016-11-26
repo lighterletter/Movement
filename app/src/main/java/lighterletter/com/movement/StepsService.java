@@ -55,6 +55,7 @@ public class StepsService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int
             startId) {
+
         return Service.START_STICKY;
     }
 
@@ -66,7 +67,6 @@ public class StepsService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
-
     }
 
     @Override
@@ -103,4 +103,6 @@ public class StepsService extends Service implements SensorEventListener {
             }
         });
     }
+
+
 }

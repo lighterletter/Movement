@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         //save user login
                         SaveSharedPreference.setUserKey(getApplicationContext(), email);
-                        showToast("User: " + RealmUtil.getInstance().getUser(email,realm).getEmail() + " logged in!");
+                        showToast("User: " + RealmUtil.getInstance().findUser(email,realm).getEmail() + " logged in!");
                         realm.close();
                         goToMainActivity();
 
