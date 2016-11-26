@@ -23,7 +23,7 @@ public class StepsService extends Service implements SensorEventListener {
     private Sensor stepDetectorSensor;
     private static StepsService instance;
 
-    public static synchronized StepsService getInstance() {
+    public static StepsService getInstance() {
         if (instance == null){
             instance = new StepsService();
             return instance;

@@ -21,8 +21,9 @@ import static io.fabric.sdk.android.Fabric.TAG;
 public class RealmUtil {
 
     private User user;
-
     private static RealmUtil instance;
+    private int todaysSteps;
+    private int totalSteps;
 
     public static synchronized RealmUtil getInstance() {
         if (instance == null) {
@@ -96,7 +97,7 @@ public class RealmUtil {
         Realm realm = Realm.getDefaultInstance();
         final String date = DateUtils.formatDateTime(ctx, timestamp, DateUtils.FORMAT_SHOW_DATE);
 
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
 
@@ -120,16 +121,24 @@ public class RealmUtil {
                     user.getEntryList().add(entry);
                     realm.copyToRealmOrUpdate(user);
 
+                    todaysSteps = entry.getSteps();
+
                     //if date exists
                 } else {
 
                     entry = (Entry) entryList.where().equalTo("date", date).findFirst();
                     entry.setSteps(entry.getSteps() + 1);
                     realm.copyToRealmOrUpdate(user);
+
+                    todaysSteps = entry.getSteps();
                 }
             }
         });
 
+    }
+
+    public int getTodaysSteps(){
+        return todaysSteps;
     }
 
 

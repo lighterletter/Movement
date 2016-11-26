@@ -15,8 +15,11 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.exceptions.RealmMigrationNeededException;
+import lighterletter.com.movement.Model.Entry;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -66,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
             //Todo: working on this until it is finished.
 
             //TODO: store values in db through util, even in background
-            //beginStepService();
+            beginStepService();
 
             //TODO;getValues from util
-            //setViewsValues();
+            setViewsValues();
 
             //setOfficeTimeListener();
 
@@ -93,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setViewsValues() {
+
+            dailyStepsTV.setText("Today: " + RealmUtil.getInstance().getTodaysSteps() + " steps");
+    }
+
     private void initViews() {
         title = (TextView) findViewById(R.id.title);
         totalStepsTV = (TextView) findViewById(R.id.total_steps_text_view);
@@ -100,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
         dailyStepsTV = (TextView) findViewById(R.id.today_steps_text_view);
     }
 
-    private void setWelcomeMessage(){
+    private void setWelcomeMessage() {
 
-        if(currentUser != null) {
+        if (currentUser != null) {
             String welcomeMessage = "Welcome " + currentUser.getUserName() + " !";
             title.setText(welcomeMessage);
         } else {
@@ -111,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void beginStepService(){
+    private void beginStepService() {
         Intent service = new Intent(this, StepsService.class);
-        StepsService.getInstance().startService(service);
+        startService(service);
     }
 
     private void createShareAction() {
@@ -196,6 +204,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
+    }
+
+    public Realm deleteRestartRealm(){
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
+        try {
+            deleteRealm();
+            return Realm.getInstance(realmConfiguration);
+        } catch (RealmMigrationNeededException e){
+            try {
+                Realm.deleteRealm(realmConfiguration);
+                //Realm file has been deleted.
+                return Realm.getInstance(realmConfiguration);
+            } catch (Exception ex){
+                throw ex;
+                //No Realm file to remove.
+            }
+        }
+    }
+
+    public void deleteRealm(){
+        try {
+            realm.close();
+            Realm.deleteRealm(realm.getConfiguration());
+            //Realm file has been deleted.
+        } catch (Exception ex){
+            ex.printStackTrace();
+            //No Realm file to remove.
+        }
     }
 
 }
