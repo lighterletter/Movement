@@ -1,16 +1,8 @@
 package lighterletter.com.movement.Model;
 
-import android.os.Parcelable;
-import android.support.annotation.Nullable;
-
-import java.io.Serializable;
-import java.util.List;
-
 import io.realm.RealmList;
-import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.RealmClass;
 import io.realm.annotations.Required;
 
 /**
@@ -29,7 +21,7 @@ public class User extends RealmObject {
     @Required
     private String password;
 
-    private RealmList<DateData> data;
+    private RealmList<Entry> entryList;
 
     public String getUserName() {
         return userName;
@@ -55,11 +47,11 @@ public class User extends RealmObject {
         this.password = password;
     }
 
-    public List<DateData> getData() {
-        return data;
+    public RealmList<Entry> getEntryList() {
+        return entryList;
     }
 
-    public void setData(RealmList<DateData> data) {
-        this.data = data;
+    public void setEntryList(RealmList<Entry> entry) {
+        this.entryList = entry;
     }
 }

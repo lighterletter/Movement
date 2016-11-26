@@ -2,6 +2,7 @@ package lighterletter.com.movement.Model;
 
 import io.realm.RealmModel;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 import io.realm.annotations.Required;
 
@@ -9,16 +10,16 @@ import io.realm.annotations.Required;
  * Created by john on 11/22/16.
  */
 
-public class DateData extends RealmObject {
+public class Entry extends RealmObject {
 
-    @Required
+    @PrimaryKey
     private String date;
     private int steps;
 
-    public DateData() {
+    public Entry() {
     }
 
-    public DateData(String date, int steps) {
+    public Entry(String date, int steps) {
         this.date = date;
         this.steps = steps;
     }

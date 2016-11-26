@@ -1,14 +1,15 @@
 package lighterletter.com.movement;
 
 
-import android.content.Intent;
+import android.content.Context;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
-import lighterletter.com.movement.Model.DateData;
+import lighterletter.com.movement.Model.Entry;
 import lighterletter.com.movement.Model.User;
 
 import static io.fabric.sdk.android.Fabric.TAG;
@@ -51,12 +52,13 @@ public class RealmUtil {
         }
         return null;
     }
+
     public void setUser(User currentUser) {
         this.user = currentUser;
     }
 
-    public User getSavedUser(){
-        if (user != null){
+    public User getSavedUser() {
+        if (user != null) {
             return user;
         }
         return null;
@@ -90,13 +92,44 @@ public class RealmUtil {
         }
     }
 
-    public void addToOverallStepsForThisUser(){
+    public void addToOverallStepsForToday(final long timestamp, Context ctx) {
         Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
+        final String date = DateUtils.formatDateTime(ctx, timestamp, DateUtils.FORMAT_SHOW_DATE);
 
-        //... add or update objects here ...
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
 
-        realm.commitTransaction();
+                RealmList entryList;
+                Entry entry;
+
+                if (user.getEntryList() == null) {
+                    entryList = new RealmList<Entry>();
+                    user.setEntryList(entryList);
+                }
+
+                entryList = user.getEntryList();
+
+                //If there is no entry for the date
+                if (entryList.where().equalTo("date", date).findFirst() == null) {
+
+                    entry = new Entry();
+                    entry.setDate(date);
+                    entry.setSteps(entry.getSteps() + 1);
+
+                    user.getEntryList().add(entry);
+                    realm.copyToRealmOrUpdate(user);
+
+                    //if date exists
+                } else {
+
+                    entry = (Entry) entryList.where().equalTo("date", date).findFirst();
+                    entry.setSteps(entry.getSteps() + 1);
+                    realm.copyToRealmOrUpdate(user);
+                }
+            }
+        });
+
     }
 
 

@@ -9,14 +9,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.text.format.DateUtils;
 import android.widget.Toast;
 
 import com.twitter.sdk.android.Twitter;
-
-import io.realm.Realm;
-import lighterletter.com.movement.Model.DateData;
-import lighterletter.com.movement.Model.User;
 
 /**
  * Created by john on 11/23/16.
@@ -26,8 +21,6 @@ public class StepsService extends Service implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor stepDetectorSensor;
-    private User user;
-
     private static StepsService instance;
 
     public static synchronized StepsService getInstance() {
@@ -74,30 +67,12 @@ public class StepsService extends Service implements SensorEventListener {
         float value = event.values[0];
         // 1.0 is the value returned by the step detector when a step is detected
         if (value == 1.0f) {
-            storeData(timestamp);
+            RealmUtil.getInstance().addToOverallStepsForToday(timestamp, getApplicationContext());
         }
     }
 
     @Override
     public void onAccuracyChanged(final Sensor sensor, int i) {
-    }
-
-    private void storeData(final long timestamp){
-        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-
-                String date = DateUtils.formatDateTime(getApplicationContext(), timestamp, DateUtils.FORMAT_SHOW_DATE);
-                user = RealmUtil.getInstance().getSavedUser();
-                if (user.getData() == null) {
-                    onErrorToLoginScreen("There was an error. Sign in again.");
-                } else {
-
-                    //add +1 to # of steps in data for user.
-
-                }
-            }
-        });
     }
 
     @Override
