@@ -37,7 +37,7 @@ public class SaveSharedPreference {
     public static void clearUserKey(Context ctx)
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
-        editor.clear(); //clear all stored data
+        editor.clear(); //clear stored currentUser key
         editor.apply();
     }
 }
