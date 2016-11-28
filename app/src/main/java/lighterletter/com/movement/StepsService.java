@@ -9,13 +9,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
+import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
+import com.twitter.sdk.android.Twitter;
+
 import java.util.Date;
 
-import io.realm.Realm;
-import io.realm.RealmList;
-import lighterletter.com.movement.Model.DateData;
 import lighterletter.com.movement.Model.User;
 
 /**
@@ -26,30 +26,49 @@ public class StepsService extends Service implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor stepDetectorSensor;
-    private Realm realm;
-    private User user;
+    private static StepsService instance;
+    private Context context;
 
+    public static StepsService startInstance() {
+        if (instance == null){
+            Log.d("user service: ", "startInstance is called");
+            instance = new StepsService();
 
-    public StepsService() {
+            return instance;
+        }
+        return instance;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public void setSensorManager(SensorManager sensorManager){
+        this.sensorManager = sensorManager;
+    }
 
-        sensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-            sensorManager.registerListener(this, stepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            realm = Realm.getDefaultInstance();
-        }
+    public void setContext(Context context){
+        this.context = context;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int
             startId) {
-        user = intent.getParcelableExtra("user");
+
+        Log.d("user service: ", "service started");
+
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
+            stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            sensorManager.registerListener(this, stepDetectorSensor, SensorManager.SENSOR_DELAY_GAME);
+
+        } else {
+            onErrorToLoginScreen("Your device does not contain the hardware necessary for this app");
+        }
+
         return Service.START_STICKY;
+    }
+
+    private void onErrorToLoginScreen(String message) {
+        Toast.makeText(this,message, Toast.LENGTH_LONG).show();
+        Twitter.logOut();
+        SaveSharedPreference.clearUserKey(getApplicationContext());
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
     }
 
     @Nullable
@@ -60,33 +79,28 @@ public class StepsService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
-        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
+        long timeInMillis = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
+        float value = event.values[0];
+        Log.d("user service event: ", "sensor event detected, value: " + value);
 
-                String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());;
-
-
-                if (user.getData() == null) {
-
-                    RealmList<DateData> newUserList = new RealmList<DateData>();
-                    DateData entry = new DateData(date, 1);
-                    newUserList.add(entry);
-                    user.setData(newUserList);
-                    realm.copyToRealmOrUpdate(user);
-
-                } else {
-                     DateData dateData = realm.where(DateData.class)
-                            .equalTo("data.date", date).findFirst();
-                    dateData.setSteps(dateData.getSteps() +1);
-
-                }
-            }
-        });
+        // 1.0 is the value returned by the step detector when a step is detected
+        if (value == 1.0f) {
+            RealmUtil.getInstance().addToOverallStepsForToday(timeInMillis, context);
+        }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
+    public void onAccuracyChanged(final Sensor sensor, int i) {
+    }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sensorManager.unregisterListener(this);
     }
 }

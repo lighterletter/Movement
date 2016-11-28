@@ -11,6 +11,8 @@ import android.preference.PreferenceManager;
 public class SaveSharedPreference {
     private static final String PREF_USER_KEY= "com.lighterletter.movement.pref_user_key";
 
+    public static String currentUser = "";
+
     public static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }
@@ -24,14 +26,14 @@ public class SaveSharedPreference {
 
     public static String getUserKey(Context ctx)
     {
-        return getSharedPreferences(ctx).getString(PREF_USER_KEY, "");
+        currentUser = getSharedPreferences(ctx).getString(PREF_USER_KEY, "");
+        return currentUser;
     }
-
 
     public static void clearUserKey(Context ctx)
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
-        editor.clear(); //clear all stored data
+        editor.clear(); //clear stored currentUser key
         editor.apply();
     }
 }
