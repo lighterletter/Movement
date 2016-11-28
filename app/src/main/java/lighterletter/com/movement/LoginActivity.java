@@ -74,11 +74,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 } else {
 
-                    if (RealmUtil.getInstance().checkUserCreds(email, password,realm)) {
+                    if (RealmUtil.getInstance().checkUserCreds(email, password)) {
 
                         //save user login
                         SaveSharedPreference.setUserKey(getApplicationContext(), email);
-                        showToast("User: " + RealmUtil.getInstance().findUser(email,realm).getEmail() + " logged in!");
+                        showToast("User: " + RealmUtil.getInstance().findUser(email).getEmail() + " logged in!");
                         realm.close();
                         goToMainActivity();
 
@@ -128,6 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             public void failure(TwitterException exception) {
                 Log.d("TwitterKit", "Login with Twitter failed.", exception);
                 showToast("Twitter log in failed. \nCheck network connection or sign up locally.");
+
             }
         });
     }

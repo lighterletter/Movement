@@ -9,9 +9,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.twitter.sdk.android.Twitter;
+
+import java.util.Date;
+
+import lighterletter.com.movement.Model.User;
 
 /**
  * Created by john on 11/23/16.
@@ -22,20 +27,31 @@ public class StepsService extends Service implements SensorEventListener {
     private SensorManager sensorManager;
     private Sensor stepDetectorSensor;
     private static StepsService instance;
+    private Context context;
 
-    public static StepsService getInstance() {
+    public static StepsService startInstance() {
         if (instance == null){
+            Log.d("user service: ", "startInstance is called");
             instance = new StepsService();
+
             return instance;
         }
         return instance;
+    }
+
+    public void setSensorManager(SensorManager sensorManager){
+        this.sensorManager = sensorManager;
+    }
+
+    public void setContext(Context context){
+        this.context = context;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int
             startId) {
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Log.d("user service: ", "service started");
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
             stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
@@ -63,11 +79,13 @@ public class StepsService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
-        long timestamp = event.timestamp;
+        long timeInMillis = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
         float value = event.values[0];
+        Log.d("user service event: ", "sensor event detected, value: " + value);
+
         // 1.0 is the value returned by the step detector when a step is detected
         if (value == 1.0f) {
-            RealmUtil.getInstance().addToOverallStepsForToday(timestamp, getApplicationContext());
+            RealmUtil.getInstance().addToOverallStepsForToday(timeInMillis, context);
         }
     }
 

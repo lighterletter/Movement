@@ -1,7 +1,10 @@
 package lighterletter.com.movement;
 
+import android.app.Service;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.SensorManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,10 +19,7 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmQuery;
-import io.realm.RealmResults;
 import io.realm.exceptions.RealmMigrationNeededException;
-import lighterletter.com.movement.Model.Entry;
 import lighterletter.com.movement.Model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,11 +56,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
             //else make sure that the user Key saved  in currentUserKey exists in database
-        } else if (RealmUtil.getInstance().findUser(currentUserKey, realm) != null) {
+        } else if (RealmUtil.getInstance().findUser(currentUserKey) != null) {
 
-            //Get and set global user object
-            currentUser = RealmUtil.getInstance().findUser(currentUserKey, realm);
+            //Get and setContext global user object
+            currentUser = RealmUtil.getInstance().findUser(currentUserKey);
             RealmUtil.getInstance().setUser(currentUser);
+
+            //TODO: store values in db through util, even in background
+            beginStepService();
 
             //Welcome!
             setWelcomeMessage();
@@ -68,11 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
             //Todo: working on this until it is finished.
 
-            //TODO: store values in db through util, even in background
-            beginStepService();
-
             //TODO;getValues from util
-            setViewsValues();
+            setViewsValues(currentUserKey);
 
             //setOfficeTimeListener();
 
@@ -96,9 +96,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setViewsValues() {
-
-            dailyStepsTV.setText("Today: " + RealmUtil.getInstance().getTodaysSteps() + " steps");
+    private void setViewsValues(String userKey) {
+            dailyStepsTV.setText("Today: " + RealmUtil.getInstance().getTodaysSteps(userKey, System.currentTimeMillis()) + " steps");
     }
 
     private void initViews() {
@@ -120,7 +119,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void beginStepService() {
-        Intent service = new Intent(this, StepsService.class);
+        Log.d("user main activity: ", "beginStepservice Method called");
+
+        StepsService stepService = StepsService.startInstance();
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        stepService.setSensorManager(sensorManager);
+        stepService.setContext(getApplicationContext());
+        Intent service = new Intent(this, stepService.getClass());
+        stepService.onStartCommand(service, Service.START_FLAG_RETRY, Service.START_STICKY);
         startService(service);
     }
 
